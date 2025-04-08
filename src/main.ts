@@ -6,7 +6,7 @@ import App from "./App.svelte";
 
 function createModel() {
   return {
-    openQueryPlayground() {
+    openQueryExport() {
       logseq.showMainUI();
     },
   };
@@ -24,7 +24,7 @@ function main() {
   });
 
   logseq.provideStyle(css`
-    div[data-injected-ui=open-query-playground-${key}] {
+    div[data-injected-ui=open-query-export-${key}] {
       display: inline-flex;
       align-items: center;
       opacity: 0.55;
@@ -34,15 +34,15 @@ function main() {
       font-size: 1.2em;
     }
 
-    div[data-injected-ui=open-query-playground-${key}]:hover {
+    div[data-injected-ui=open-query-export-${key}]:hover {
       opacity: 0.9;
     }
   `);
 
   logseq.App.registerUIItem('toolbar', {
-    key: "open-query-playground",
+    key: "open-query-export",
     template: `
-      <a data-on-click="openQueryPlayground" class="button" style="font-size: 20px">🗄</a>
+      <a data-on-click="openQueryExport" class="button" style="font-size: 1.6rem">↡</a>
     `,
   });
 }

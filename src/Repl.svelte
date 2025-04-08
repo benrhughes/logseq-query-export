@@ -18,7 +18,6 @@
   let res: ReturnType<typeof runQuery>;
   let sortedResults: any[] = [];
 
-  // Moved the setting of `sortedResults` back into `executeQuery` as it was originally correct.
   function executeQuery() {
     res = runQuery()
     .then((result) => {
@@ -26,7 +25,6 @@
     });
   }
 
-  // Restored the `sortResult` function to handle sorting logic.
   function sortResult(result: any[]) {
     return result?.sort((a, b) => {
       const comparison = (a.meta?.sortKey || 0) - (b.meta?.sortKey || 0);
@@ -34,9 +32,13 @@
     });
   }
 
-  // Replaced JSON.parse with a proper unescaping method for JSON-escaped strings.
   function unescapeJsonString(jsonEscapedString: string): string {
-    return jsonEscapedString.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\t/g, '\t').replace(/\\r/g, '\r');
+    try {
+      return JSON.parse(`"${jsonEscapedString}"`);
+    } catch (error) {
+      console.error("Failed to unescape JSON string:", error);
+      return jsonEscapedString; // Fallback to the original string if parsing fails
+    }
   }
 
   function downloadMarkdown() {
@@ -60,8 +62,8 @@
     <textarea bind:value={query} placeholder="Enter your query here"></textarea>
     <div class="controls">
       <select bind:value={sortOrder}>
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
+        <option value="asc">Sort Asc</option>
+        <option value="desc">Sort Desc</option>
       </select>
       <button on:click={executeQuery}>Run Query</button>
       <button on:click={downloadMarkdown}>Download as Markdown</button>
@@ -97,11 +99,12 @@
     display: flex;
     align-items: center;
     gap: 0.5em;
+    margin-left: 0.5em;
   }
 
   textarea {
     width: 100%;
-    height: 200px;
+    height: 250px;
     font-family: monospace;
     font-size: 14px;
     padding: 0.5em;

@@ -1,3 +1,2 @@
-# Logseq Query Playground Plugin
+# Logseq Query Exporter Plugin
 
-![](demo.gif)

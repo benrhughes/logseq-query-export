@@ -6,6 +6,7 @@
   let query = `; your query should return data in the following format:
 ; [ [ { content: "markdown content", meta: { title: "title", sortKey: 123 } } ] ]
 ; sortKey is optional, but must be provided if you want to sort the results
+; The example query below finds all blocks that reference the page "logseq"
 
 [:find (pull ?b [
   :block/content
@@ -36,7 +37,7 @@
     left: 0;
     right: 0;
     position: fixed;
-    padding: 10vh 5vw;
+    padding: 5vh 5vw;
     backdrop-filter: saturate(0.8) blur(10px);
   }
 
