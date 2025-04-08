@@ -3,10 +3,18 @@
 
   let inner: Element;
   let show = true;
-  let query = `[:find (pull ?h [*])
-            :where
-            [?h :block/marker ?marker]
-            [(contains? #{"NOW" "DOING"} ?marker)]]`;
+  let query = `; your query should return data in the following format:
+; [ [ { content: "markdown content", meta: { title: "title", sortKey: 123 } } ] ]
+; sortKey is optional, but must be provided if you want to sort the results
+
+[:find (pull ?b [
+  :block/content
+  {(:block/page :as meta) [(:block/original-name :as title) (:block/journal-day :as sortKey)]}
+ ])
+ :where
+ [?b :block/refs ?p]
+ [?p :block/name "logseq"]
+]`;
 
   logseq.on("ui:visible:changed", async ({ visible }) => {
     show = visible;
