@@ -36,6 +36,7 @@
   },
   "logseq": {
     "id": "benrhughes-query-exporter",
+    "name": "Query Exporter",
     "icon": "./icon.png"
   }
 }
