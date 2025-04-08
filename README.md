@@ -4,7 +4,7 @@ A plugin for Logseq that allows you to run a query and export the results to mar
 
 ![](./screenshot.png)
 
-You can run any query you'd like. If you'd like to take advantage of sorting or exporting to markdown, the results of your query will need
+You can run any query you'd like. If you'd like to take advantage of sorting or exporting to markdown, the results of your query will need to produce data with the following structure:
 
 ```json
 [ 
