@@ -1,6 +1,6 @@
 {
   "name": "logseq-query-exporter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "public/index.html",
   "author": "benrhughes",
   "scripts": {
@@ -36,8 +36,8 @@
     "svelte-ace": "^1.0.21"
   },
   "logseq": {
-    "id": "benrhughes-query-exporter",
-    "name": "Query Exporter",
+    "id": "logseq-query-exporter",
+    "title": "Logseq Query Exporter",
     "icon": "./icon.png"
   }
 }
