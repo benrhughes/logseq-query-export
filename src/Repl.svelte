@@ -61,7 +61,7 @@
 
     const markdownContent = sortedResults
       .map((entry) => {
-        const title = entry.meta?.title ? `# ${entry.meta.title}\n\n` : '';
+        const title = entry.meta?.title ? `# ${entry.meta.title}\n\n` : '---\n\n';
         let content = unescapeJsonString(entry.content); // Properly unescape JSON-escaped markdown
 
         if (pageRefsAction === 'replace-with-text') {
@@ -78,7 +78,7 @@
 
         return `${title}${content}`;
       })
-      .join('\n\n---\n\n');
+      .join('\n\n');
 
     queryResult = markdownContent; // Update the query-result area with markdown
   }
