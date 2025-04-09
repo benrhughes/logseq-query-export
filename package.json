@@ -1,6 +1,6 @@
 {
   "name": "logseq-query-exporter",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "public/index.html",
   "author": "benrhughes",
   "scripts": {

@@ -35,6 +35,10 @@ When you first open the plugin, the sample query will provide results in the exp
 ]
 ```
 
+## Generating Markdown 
+
+The "Generate Markdown" button converts the JSON query results into markdown format and displays it in the query-result area. This allows you to preview the markdown before downloading it.
+
 ### Page and Hash References Processing
 
 When exporting query results to markdown, you can customize how page references (`[[]]`) and hash references (`#`) are handled. The available options are:
@@ -42,5 +46,10 @@ When exporting query results to markdown, you can customize how page references 
 - **Keep**: Leave the references as they are.
 - **Replace with text**: Convert references to plain text.
 - **Delete**: Remove the references entirely.
+
+
+### Download Content 
+
+The "Download Content" button downloads the current content of the query-result area. This could be either the JSON query results or the generated markdown, depending on what is currently displayed.
 
 

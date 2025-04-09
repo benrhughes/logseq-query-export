@@ -21,11 +21,13 @@
 
   let res: ReturnType<typeof runQuery>;
   let sortedResults: any[] = [];
+  let queryResult: string = '';
 
   function executeQuery() {
     res = runQuery()
     .then((result) => {
       sortedResults = sortResult(result?.map(([item]) => item));
+      queryResult = JSON.stringify(sortedResults, null, 2); // Set queryResult to display JSON by default
     });
   }
 
@@ -54,7 +56,7 @@
     }
   }
 
-  function downloadMarkdown() {
+  function generateMarkdown() {
     if (!sortedResults.length) return;
 
     const markdownContent = sortedResults
@@ -78,8 +80,14 @@
       })
       .join('\n\n---\n\n');
 
-    const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' });
-    saveAs(blob, 'results.md');
+    queryResult = markdownContent; // Update the query-result area with markdown
+  }
+
+  function downloadContent() {
+    if (!queryResult) return;
+
+    const blob = new Blob([queryResult], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, 'results.txt');
   }
 </script>
 
@@ -90,8 +98,8 @@
       <div class="control-group">
         <label for="sort-order">Sort Order:</label>
         <select id="sort-order" bind:value={sortOrder}>
-          <option value="asc">Sort Asc</option>
-          <option value="desc">Sort Desc</option>
+          <option value="asc">Asc</option>
+          <option value="desc">Desc</option>
         </select>
       </div>
       <div class="control-group">
@@ -115,7 +123,9 @@
         </select>
       </div>
       <div class="control-group">
-        <button on:click={downloadMarkdown}>Download as Markdown</button>
+        <button on:click={generateMarkdown}>Generate Markdown</button>
+        <div class="vertical-separator"></div>
+        <button on:click={downloadContent}>Download Content</button>
       </div>
     </div>
   </div>
@@ -123,7 +133,7 @@
     {#await res}
       <pre>...running query</pre>
     {:then result}
-      <pre>{JSON.stringify(sortedResults, null, 2)}</pre>
+      <pre>{queryResult}</pre>
     {:catch error}
       <pre class="error">{error.message}</pre>
     {/await}
