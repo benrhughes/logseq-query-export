@@ -4,7 +4,8 @@ A plugin for Logseq that allows you to run a query and export the results to mar
 
 ![](./screenshot.png)
 
-You can run any query you'd like. If you'd like to take advantage of sorting or exporting to markdown, the results of your query will need to produce data with the following structure:
+## Querying
+You can run any query you'd like and see the resulting json. If you'd like to take advantage of sorting or exporting to markdown, the json from your query will need to have the following structure:
 
 ```json
 [ 
@@ -21,7 +22,7 @@ You can run any query you'd like. If you'd like to take advantage of sorting or 
 ]
 ```
 
-When you first open the plugin, the same query will provide results in the expected format. For reference, that query is:
+When you first open the plugin, the sample query will provide results in the expected format. For reference, that query is:
 
 ```cljs
 [:find (pull ?b [
@@ -33,4 +34,13 @@ When you first open the plugin, the same query will provide results in the expec
  [?p :block/name "logseq"]
 ]
 ```
+
+### Page and Hash References Processing
+
+When exporting query results to markdown, you can customize how page references (`[[]]`) and hash references (`#`) are handled. The available options are:
+
+- **Keep**: Leave the references as they are.
+- **Replace with text**: Convert references to plain text.
+- **Delete**: Remove the references entirely.
+
 

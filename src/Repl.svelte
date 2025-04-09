@@ -3,7 +3,11 @@
 
   export let query: string;
 
+  type RefAction = 'do-nothing' | 'replace-with-text' | 'delete';
+
   let sortOrder: 'asc' | 'desc' = 'asc';
+  let pageRefsAction: RefAction = 'do-nothing';
+  let hashRefsAction: RefAction = 'do-nothing';
 
   async function runQuery() {
     const errorKey = "#lspmsg#error#";
@@ -34,10 +38,19 @@
 
   function unescapeJsonString(jsonEscapedString: string): string {
     try {
-      return JSON.parse(`"${jsonEscapedString}"`);
+      // Escape control characters and ensure the string is JSON-safe
+      const sanitizedString = jsonEscapedString
+        .replace(/\\/g, '\\\\') // Escape backslashes
+        .replace(/\n/g, '\\n') // Escape newlines
+        .replace(/\r/g, '\\r') // Escape carriage returns
+        .replace(/\t/g, '\\t') // Escape tabs
+        .replace(/"/g, '\\"'); // Escape double quotes
+
+      return JSON.parse(`"${sanitizedString}"`);
     } catch (error) {
-      console.error("Failed to unescape JSON string:", error);
-      return jsonEscapedString; // Fallback to the original string if parsing fails
+      console.error("Failed to unescape JSON string:", error, "Input:", jsonEscapedString);
+      // Return the original string if parsing fails
+      return jsonEscapedString;
     }
   }
 
@@ -47,7 +60,20 @@
     const markdownContent = sortedResults
       .map((entry) => {
         const title = entry.meta?.title ? `# ${entry.meta.title}\n\n` : '';
-        const content = unescapeJsonString(entry.content); // Properly unescape JSON-escaped markdown
+        let content = unescapeJsonString(entry.content); // Properly unescape JSON-escaped markdown
+
+        if (pageRefsAction === 'replace-with-text') {
+          content = content.replace(/\[\[(.*?)\]\]/g, '$1');
+        } else if (pageRefsAction === 'delete') {
+          content = content.replace(/\[\[.*?\]\]/g, '');
+        }
+
+        if (hashRefsAction === 'replace-with-text') {
+          content = content.replace(/#(\w+)/g, '$1');
+        } else if (hashRefsAction === 'delete') {
+          content = content.replace(/#\w+/g, '');
+        }
+
         return `${title}${content}`;
       })
       .join('\n\n---\n\n');
@@ -61,12 +87,36 @@
   <div class="query-input">
     <textarea bind:value={query} placeholder="Enter your query here"></textarea>
     <div class="controls">
-      <select bind:value={sortOrder}>
-        <option value="asc">Sort Asc</option>
-        <option value="desc">Sort Desc</option>
-      </select>
-      <button on:click={executeQuery}>Run Query</button>
-      <button on:click={downloadMarkdown}>Download as Markdown</button>
+      <div class="control-group">
+        <label for="sort-order">Sort Order:</label>
+        <select id="sort-order" bind:value={sortOrder}>
+          <option value="asc">Sort Asc</option>
+          <option value="desc">Sort Desc</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <button on:click={executeQuery}>Run Query</button>
+        <div class="vertical-separator"></div>
+      </div>
+      <div class="control-group">
+        <label for="page-refs-action">[[]] Page Refs:</label>
+        <select id="page-refs-action" bind:value={pageRefsAction}>
+          <option value="do-nothing">Keep</option>
+          <option value="replace-with-text">Replace with text</option>
+          <option value="delete">Delete</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="hash-refs-action"># Page Refs:</label>
+        <select id="hash-refs-action" bind:value={hashRefsAction}>
+          <option value="do-nothing">Keep</option>
+          <option value="replace-with-text">Replace with text</option>
+          <option value="delete">Delete</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <button on:click={downloadMarkdown}>Download as Markdown</button>
+      </div>
     </div>
   </div>
   <div class="query-result">
@@ -97,9 +147,27 @@
 
   .controls {
     display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-left: 0.5em;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 0.5em;
-    margin-left: 0.5em;
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  select, button {
+    padding: 0.5em;
+    font-size: 14px;
+    flex-grow: 1; /* Ensures alignment with selects */
   }
 
   textarea {
@@ -117,11 +185,6 @@
     cursor: pointer;
   }
 
-  select {
-    padding: 0.5em;
-    font-size: 14px;
-  }
-
   .query-result {
     white-space: pre-wrap;
     font-family: monospace;
@@ -135,5 +198,12 @@
 
   .error {
     color: red;
+  }
+
+  .vertical-separator {
+    width: 1px;
+    background-color: #ccc;
+    height: 100%;
+    margin: 0 0.5em;
   }
 </style>
