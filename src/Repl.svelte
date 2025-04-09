@@ -8,6 +8,7 @@
   let sortOrder: 'asc' | 'desc' = 'asc';
   let pageRefsAction: RefAction = 'do-nothing';
   let hashRefsAction: RefAction = 'do-nothing';
+  let groupByTitle: boolean = false; // New state for grouping by title
 
   async function runQuery() {
     const errorKey = "#lspmsg#error#";
@@ -59,26 +60,63 @@
   function generateMarkdown() {
     if (!sortedResults.length) return;
 
-    const markdownContent = sortedResults
-      .map((entry) => {
-        const title = entry.meta?.title ? `# ${entry.meta.title}\n\n` : '---\n\n';
-        let content = unescapeJsonString(entry.content); // Properly unescape JSON-escaped markdown
+    let markdownContent;
 
-        if (pageRefsAction === 'replace-with-text') {
-          content = content.replace(/\[\[(.*?)\]\]/g, '$1');
-        } else if (pageRefsAction === 'delete') {
-          content = content.replace(/\[\[.*?\]\]/g, '');
-        }
+    if (groupByTitle) {
+      const groupedResults = sortedResults.reduce((acc, entry) => {
+        const title = entry.meta?.title || 'Untitled';
+        if (!acc[title]) acc[title] = [];
+        acc[title].push(entry);
+        return acc;
+      }, {});
 
-        if (hashRefsAction === 'replace-with-text') {
-          content = content.replace(/#(\w+)/g, '$1');
-        } else if (hashRefsAction === 'delete') {
-          content = content.replace(/#\w+/g, '');
-        }
+      markdownContent = Object.entries(groupedResults)
+        .map(([title, entries]) => {
+          const content = entries
+            .map((entry) => {
+              let entryContent = unescapeJsonString(entry.content);
 
-        return `${title}${content}`;
-      })
-      .join('\n\n');
+              if (pageRefsAction === 'replace-with-text') {
+                entryContent = entryContent.replace(/\[\[(.*?)\]\]/g, '$1');
+              } else if (pageRefsAction === 'delete') {
+                entryContent = entryContent.replace(/\[\[.*?\]\]/g, '');
+              }
+
+              if (hashRefsAction === 'replace-with-text') {
+                entryContent = entryContent.replace(/#(\w+)/g, '$1');
+              } else if (hashRefsAction === 'delete') {
+                entryContent = entryContent.replace(/#\w+/g, '');
+              }
+
+              return entryContent;
+            })
+            .join('\n\n---\n\n');
+
+          return `# ${title}\n\n${content}`;
+        })
+        .join('\n\n');
+    } else {
+      markdownContent = sortedResults
+        .map((entry) => {
+          const title = entry.meta?.title ? `# ${entry.meta.title}\n\n` : '---\n\n';
+          let content = unescapeJsonString(entry.content);
+
+          if (pageRefsAction === 'replace-with-text') {
+            content = content.replace(/\[\[(.*?)\]\]/g, '$1');
+          } else if (pageRefsAction === 'delete') {
+            content = content.replace(/\[\[.*?\]\]/g, '');
+          }
+
+          if (hashRefsAction === 'replace-with-text') {
+            content = content.replace(/#(\w+)/g, '$1');
+          } else if (hashRefsAction === 'delete') {
+            content = content.replace(/#\w+/g, '');
+          }
+
+          return `${title}${content}`;
+        })
+        .join('\n\n');
+    }
 
     queryResult = markdownContent; // Update the query-result area with markdown
   }
@@ -121,6 +159,10 @@
           <option value="replace-with-text">Replace with text</option>
           <option value="delete">Delete</option>
         </select>
+      </div>
+      <div class="control-group">
+        <label for="group-by-title">Group by Title:</label>
+        <input type="checkbox" id="group-by-title" bind:checked={groupByTitle} />
       </div>
       <div class="control-group">
         <button on:click={generateMarkdown}>Generate Markdown</button>

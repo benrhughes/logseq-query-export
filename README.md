@@ -47,6 +47,9 @@ When exporting query results to markdown, you can customize how page references 
 - **Replace with text**: Convert references to plain text.
 - **Delete**: Remove the references entirely.
 
+### Grouping by Title
+
+If you check the "Group by Title" checkbox, entries with the same title will be grouped under that title, separated by `---`. Titles will not be repeated.
 
 ### Download Content 
 
